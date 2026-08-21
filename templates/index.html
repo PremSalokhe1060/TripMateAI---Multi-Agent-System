@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TripMate AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="page-bg" aria-hidden="true">
+        <div class="stars"></div>
+        <div class="horizon-glow"></div>
+    </div>
+
+    <main class="app-container">
+
+        <section class="hero-section">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                TripMate AI — Multi-Agent Travel Planner, built on LangGraph
+            </div>
+
+            <h1>
+                Plan your perfect trip<br class="hero-break"> before you finish your chai.
+            </h1>
+
+            <p>
+                Tell TripMate where you're headed. It searches flights, scouts hotels and
+                stitches together a full itinerary — routed through a crew of AI agents working the phones for you.
+            </p>
+
+            <div class="flight-path" aria-hidden="true">
+                <svg viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg" role="presentation">
+                    <path class="route-line" d="M50,95 Q320,-10 590,95" />
+                    <circle class="route-node from" cx="50" cy="95" r="5"></circle>
+                    <circle class="route-node to" cx="590" cy="95" r="5"></circle>
+                </svg>
+                <span class="route-label from">YOUR IDEA</span>
+                <span class="route-plane">✈</span>
+                <span class="route-label to">FULL ITINERARY</span>
+            </div>
+        </section>
+
+        <section class="planner-card">
+
+            <div class="ticket-strip" aria-hidden="true">
+                <span>TRIPMATE</span><span>·</span><span>AI CLASS</span><span>·</span><span>ONE ITINERARY</span><span>·</span><span>NO EXPIRY</span>
+            </div>
+
+            <div class="card-header">
+                <div>
+                    <h2>Where do you want to go?</h2>
+                    <p>
+                        Example: "Plan a complete 7 day Japan trip from India under 5 lakhs."
+                    </p>
+                </div>
+
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    Agents online
+                </div>
+            </div>
+
+            <div class="input-area">
+                <textarea
+                    id="userInput"
+                    placeholder="Plan a complete 7 days Japan trip including flights, hotels and sightseeing under 2 lakhs..."
+                ></textarea>
+
+                <button id="sendBtn" onclick="sendMessage()">
+                    <span id="btnText">Generate plan</span>
+                    <span id="btnLoader" class="loader hidden"></span>
+                </button>
+            </div>
+
+            <div class="perforation" aria-hidden="true"></div>
+
+            <p class="quick-prompts-label">Or pick a destination tag</p>
+
+            <div class="quick-prompts">
+                <button class="tag-btn" onclick="setPrompt('Plan a complete 7 days Japan trip from Bangladesh including flights, hotels and sightseeing under 2 lakhs.')">
+                    <span class="tag-icon">🇯🇵</span> Japan Trip
+                </button>
+
+                <button class="tag-btn" onclick="setPrompt('Plan a 5 days Dubai trip from Dhaka with flights, hotels and sightseeing.')">
+                    <span class="tag-icon">🇦🇪</span> Dubai Trip
+                </button>
+
+                <button class="tag-btn" onclick="setPrompt('Plan a 7 days Thailand trip from Bangladesh with budget hotels and sightseeing.')">
+                    <span class="tag-icon">🇹🇭</span> Thailand Trip
+                </button>
+
+                <button class="tag-btn" onclick="setPrompt('Give me all country flight info.')">
+                    <span class="tag-icon">🌐</span> Global Flights
+                </button>
+            </div>
+
+        </section>
+
+        <section id="resultSection" class="result-section hidden">
+
+            <div class="result-header">
+                <div>
+                    <span class="result-eyebrow">Itinerary generated</span>
+                    <h2>Your AI Travel Plan</h2>
+                </div>
+
+                <div class="result-header-right">
+                    <div class="stamp" id="threadInfo">Thread ID: -</div>
+
+                    <div class="result-actions">
+                        <button class="copy-btn" onclick="copyResult()">
+                            Copy
+                        </button>
+
+                        <button class="download-btn" onclick="downloadPDF()">
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pdfContent" class="pdf-content">
+                <h1 class="pdf-title">AI Travel Plan</h1>
+                <div id="resultBox" class="result-box"></div>
+                <div class="barcode" aria-hidden="true"></div>
+            </div>
+
+        </section>
+
+        <section id="errorBox" class="error-box hidden"></section>
+
+    </main>
+
+    <footer>
+        Built with FastAPI, LangGraph, Groq, PostgreSQL, Tavily and AviationStack
+    </footer>
+
+    <!-- Markdown Renderer -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- PDF Download Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Your Custom JS -->
+    <script src="/static/script.js"></script>
+
+</body>
+</html>

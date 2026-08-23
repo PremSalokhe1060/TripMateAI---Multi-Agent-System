@@ -106,26 +106,44 @@
 
         </section>
 
+        <!-- Supervisor's routing plan: which specialist agents it picked,
+             its reasoning, and whether the input guardrail passed. This is
+             rendered on EVERY successful response, not just on approval. -->
+        <section id="workflowSection" class="result-section hidden">
+
+            <div class="result-header">
+                <div>
+                    <span class="result-eyebrow">Supervisor Agent</span>
+                    <h2>Execution Plan</h2>
+                </div>
+
+                <div class="result-header-right">
+                    <span id="guardrailBadge" class="guardrail-badge">Guardrail passed</span>
+                </div>
+            </div>
+
+            <p id="supervisorReasoning" class="supervisor-reasoning"></p>
+
+            <div id="agentChips" class="agent-trail"></div>
+
+        </section>
+
         <section id="resultSection" class="result-section hidden">
 
             <div class="result-header">
                 <div>
-                    <span class="result-eyebrow">Itinerary generated</span>
-                    <h2>Your AI Travel Plan</h2>
+                    <h2 id="resultTitle">Your AI Travel Plan</h2>
+                    <p id="threadInfo" class="thread-info">Thread ID: -</p>
                 </div>
 
-                <div class="result-header-right">
-                    <div class="stamp" id="threadInfo">Thread ID: -</div>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyResult()">
+                        Copy
+                    </button>
 
-                    <div class="result-actions">
-                        <button class="copy-btn" onclick="copyResult()">
-                            Copy
-                        </button>
-
-                        <button class="download-btn" onclick="downloadPDF()">
-                            Download PDF
-                        </button>
-                    </div>
+                    <button class="download-btn" onclick="downloadPDF()">
+                        Download PDF
+                    </button>
                 </div>
             </div>
 
@@ -133,6 +151,38 @@
                 <h1 class="pdf-title">AI Travel Plan</h1>
                 <div id="resultBox" class="result-box"></div>
                 <div class="barcode" aria-hidden="true"></div>
+            </div>
+
+        </section>
+
+        <!-- Human-in-the-loop review controls. Shown alongside resultSection
+             (which is displaying the draft) whenever requires_approval:true. -->
+        <section id="approvalSection" class="approval-section hidden">
+
+            <div class="approval-icon">👤</div>
+
+            <div class="approval-content">
+                <span class="result-eyebrow">Human-in-the-Loop</span>
+                <h2>Review the draft itinerary</h2>
+                <p id="approvalRequest">
+                    Approve the draft or provide feedback before the final plan is generated.
+                </p>
+
+                <textarea
+                    id="approvalFeedback"
+                    class="feedback-input"
+                    placeholder="Add revision feedback, for example: reduce the hotel cost and add one free day..."
+                ></textarea>
+
+                <div class="approval-actions">
+                    <button id="approveBtn" class="approve-btn" onclick="submitApproval(true)">
+                        Approve &amp; Generate Final
+                    </button>
+
+                    <button id="reviseBtn" class="revise-btn" onclick="submitApproval(false)">
+                        Revise Using Feedback
+                    </button>
+                </div>
             </div>
 
         </section>

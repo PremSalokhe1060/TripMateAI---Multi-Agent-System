@@ -1,4 +1,5 @@
 import os
+import time
 import certifi
 from dotenv import load_dotenv
 
@@ -32,6 +33,17 @@ from mcp_client import (
     forecast_mcp_search,
     weather_mcp_search,
 )
+
+# =========================
+# Rate-limit pacing
+# =========================
+# Groq's free/on-demand tier caps total tokens-per-minute (TPM) across ALL
+# requests, not per request. Even with small individual prompts, agents
+# firing back-to-back inside one graph run can still stack up and trip the
+# limit. This small delay spreads sequential LLM calls out across the
+# 60-second window. Increase this value if you still see 429/413 errors;
+# decrease/remove it once you're on a paid tier with a higher TPM limit.
+LLM_CALL_DELAY_SECONDS = 2
 
 
 def get_database_url():
@@ -120,6 +132,7 @@ def _llm_text(system_prompt: str, user_prompt: str) -> str:
             HumanMessage(content=user_prompt),
         ]
     )
+    time.sleep(LLM_CALL_DELAY_SECONDS)
     return str(response.content)
 
 
@@ -344,6 +357,7 @@ def flight_agent(state: TravelState):
             ]
         )
         flight_data = response.content
+        time.sleep(LLM_CALL_DELAY_SECONDS)
     except Exception as exc:
         flight_data = f"Flight information unavailable: {exc}"
 
@@ -357,6 +371,8 @@ def flight_agent(state: TravelState):
 # =========================
 # Hotel Agent - original behavior kept
 # =========================
+# Note: no time.sleep() needed here. This agent calls tavily_mcp_search(),
+# not llm.invoke(), so it doesn't consume Groq TPM at all.
 def hotel_agent(state: TravelState):
     query = (
         f"Best hotels for "
@@ -398,6 +414,8 @@ def hotel_agent(state: TravelState):
 # =========================
 # Weather Agent - original behavior kept
 # =========================
+# Note: no time.sleep() needed here either — weather/forecast come from the
+# custom weather MCP server (OpenWeather), not from llm.invoke().
 def weather_agent(state: TravelState):
     city = extract_destination(
         state["user_query"]
@@ -455,7 +473,7 @@ User Query:
 {state['user_query']}
 
 Trip Constraints:
-{state.get('trip_constraints', {})[:1000]}
+{state.get('trip_constraints', {})}
 
 Flight Results:
 {state.get('flight_results', '')[:1000]}
@@ -481,6 +499,7 @@ If exact live prices are unavailable, clearly label estimates as approximate.
             HumanMessage(content=prompt),
         ]
     )
+    time.sleep(LLM_CALL_DELAY_SECONDS)
 
     return {
         "budget_results": response.content,
@@ -500,7 +519,7 @@ User Query:
 {state['user_query']}
 
 Trip Constraints:
-{state.get('trip_constraints', {})[:1000]}
+{state.get('trip_constraints', {})}
 
 Flight Results:
 {state.get('flight_results', '')[:1000]}
@@ -524,6 +543,7 @@ Create a clear draft that is ready for human review.
             HumanMessage(content=prompt),
         ]
     )
+    time.sleep(LLM_CALL_DELAY_SECONDS)
 
     approval_request = (
         "Please review the generated draft itinerary. Approve it to create the "
@@ -570,6 +590,9 @@ def human_approval_agent(state: TravelState):
 # =========================
 # Final Response Agent - original format kept, HITL feedback added
 # =========================
+# NOTE:The single largest prompt in the whole graph and a likely
+# cause of the 413 error. It uses all output from previous all agents.
+# Truncated the same way as budget_agent and itinerary_agent.
 def final_agent(state: TravelState):
     if state.get("approved", False):
         review_instruction = (
@@ -594,19 +617,19 @@ Supervisor Constraints:
 {state.get('trip_constraints', {})}
 
 Flights:
-{state.get('flight_results', '')}
+{state.get('flight_results', '')[:1000]}
 
 Hotels:
-{state.get('hotel_results', '')}
+{state.get('hotel_results', '')[:1000]}
 
 Weather:
-{state.get('weather_results', '')}
+{state.get('weather_results', '')[:1000]}
 
 Budget Analysis:
-{state.get('budget_results', '')}
+{state.get('budget_results', '')[:1000]}
 
 Draft Itinerary:
-{state.get('itinerary', '')}
+{state.get('itinerary', '')[:1500]}
 
 Format the final answer beautifully using these sections:
 1. Trip Summary
@@ -633,6 +656,7 @@ Important:
             HumanMessage(content=final_prompt),
         ]
     )
+    time.sleep(LLM_CALL_DELAY_SECONDS)
 
     return {
         "final_response": response.content,

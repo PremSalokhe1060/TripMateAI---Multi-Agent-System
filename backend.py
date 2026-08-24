@@ -333,8 +333,8 @@ def flight_agent(state: TravelState):
 
         prompt = FLIGHT_AGENT_PROMPT.format(
             query=query,
-            airport_data=str(airports)[:3000],
-            airline_data=str(airlines)[:3000],
+            airport_data=str(airports)[:800],
+            airline_data=str(airlines)[:800],
         )
 
         response = llm.invoke(
@@ -455,16 +455,16 @@ User Query:
 {state['user_query']}
 
 Trip Constraints:
-{state.get('trip_constraints', {})}
+{state.get('trip_constraints', {})[:1000]}
 
 Flight Results:
-{state.get('flight_results', '')}
+{state.get('flight_results', '')[:1000]}
 
 Hotel Results:
-{state.get('hotel_results', '')}
+{state.get('hotel_results', '')[:1000]}
 
 Weather Results:
-{state.get('weather_results', '')}
+{state.get('weather_results', '')[:1000]}
 
 Return:
 1. Estimated cost categories
@@ -500,19 +500,19 @@ User Query:
 {state['user_query']}
 
 Trip Constraints:
-{state.get('trip_constraints', {})}
+{state.get('trip_constraints', {})[:1000]}
 
 Flight Results:
-{state.get('flight_results', '')}
+{state.get('flight_results', '')[:1000]}
 
 Hotel Results:
-{state.get('hotel_results', '')}
+{state.get('hotel_results', '')[:1000]}
 
 Weather Results:
-{state.get('weather_results', '')}
+{state.get('weather_results', '')[:1000]}
 
 Budget Results:
-{state.get('budget_results', '')}
+{state.get('budget_results', '')[:1000]}
 
 Make the itinerary practical, budget-aware, and easy to follow.
 Create a clear draft that is ready for human review.
